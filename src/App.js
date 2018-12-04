@@ -88,24 +88,39 @@ class App extends Component {
     };
   }
   componentDidMount() {
-    setTimeout(() => {
-      this.setState({serverData: fakeServerData})}, 1000);
-
-    }
-
+      let accessToken = new URLSearchParams(window.location.search).get('access_token');
+      fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        }
+      }).then(response=> response.json() ).then(data => this.setState({user: {name: data.display_name}}))
+      fetch('https://api.spotify.com/v1/me/playlists', {
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        }
+      }).then(response=> response.json() ).then(data => this.setState({
+          playlists: data.items.map( item => ({
+              name: item.name,
+              songs: []
+            }))
+      }))
+  }
 
   render() {
-    let playlistsToRender = this.state.serverData.user ? this.state.serverData.user.playlists.filter(playlist =>
-      playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase())
-    ) : [];
+    let playlistsToRender =
+    this.state.user &&
+    this.state.playlists
+      ? this.state.playlists.filter(playlist =>
+        playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase())
+        ) : [];
     return (
       <div className="App">
-      {this.state.serverData.user ?
+      {this.state.user ?
         <div>
           {
-            this.state.serverData.user &&
+            this.state.user &&
             <h1>
-              Playlist do {this.state.serverData.user.name}
+              Playlist do {this.state.user.name}
             </h1>
           }
 
@@ -120,7 +135,8 @@ class App extends Component {
             )
           }
 
-        </div> : <h1 style={defaultStyle}> Carregando... </h1>}
+        </div> : <button onClick={() => window.location = 'http://localhost:8888/login' } style={{padding: '20px', 'font-size': '50px', 'marginTop': '20px'}}> Login com o Spotify </button>
+      }
       </div>
     );
   }
