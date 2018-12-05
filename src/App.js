@@ -6,21 +6,7 @@ import './App.css';
 let defaultStyle = {
   color: '#fff'
 };
-let fakeServerData = {
-  user: {
-    name: 'Diego',
-    playlists: [
-      {name: 'Punk Rock',
-       songs: [{name: 'Punk rock Song', duration: 1324}, {name: 'American Jesus', duration: 1324}]},
-      {name: 'Industrial',
-       songs: [{name: 'Perfect Drug', duration: 1324}, {name: 'The Becoming', duration: 1324}]},
-      {name: 'Heavy Metal',
-       songs: [{name: 'N.I.B.', duration: 1324}, {name: 'Hallowed be Thy Name', duration: 1324}]},
-      {name: 'Thrash Metal',
-       songs: [{name: 'Angel of Death', duration: 1324}, {name: 'Raining Blood', duration: 1324}, {name: 'One', duration: 1324}]}
-    ]
-  }
-};
+
 
 class PlaylistCounter extends Component {
   render() {
@@ -89,6 +75,7 @@ class App extends Component {
   }
   componentDidMount() {
       let accessToken = new URLSearchParams(window.location.search).get('access_token');
+      accessToken &&
       fetch('https://api.spotify.com/v1/me', {
         headers: {
           'Authorization': 'Bearer ' + accessToken
@@ -99,7 +86,7 @@ class App extends Component {
           'Authorization': 'Bearer ' + accessToken
         }
       }).then(response=> response.json() ).then(data => this.setState({
-          playlists: data.items.map( item => ({
+          playlists: data.items && data.items.map( item => ({
               name: item.name,
               songs: []
             }))
